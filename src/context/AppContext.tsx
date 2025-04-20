@@ -14,7 +14,7 @@ interface Chapter {
 
 type Action =
     {
-        type: 'LOAD_APPLICATION_STATE'
+        type: 'LOAD_SUBJECTS'
         payload: Subject[]
     }
     | {
@@ -37,10 +37,11 @@ type Action =
         payload: { subjectId: string, chapterId: string }
     }
 
-const AppContext = createContext<{ subjects: Subject[], totalProgress: number, dispatch: React.Dispatch<Action> }>({ subjects: [], totalProgress: 0, dispatch: () => { } })
+const AppContext = createContext<{ subjects: Subject[], totalProgress: number, dispatch: React.Dispatch<Action>, deadline: string | null, setDeadline: React.Dispatch<React.SetStateAction<string | null>> }>({ subjects: [], totalProgress: 0, dispatch: () => { } })
 
 export default function AppContextProvider({ children }: { children: React.ReactNode }) {
     const [subjects, dispatch] = useReducer(contextReducer, [])
+    const [deadline, setDeadline] = useState<string | null>(null)
     const [totalProgress, setTotalProgress] = useState(0)
     const [isLoadingApplicationState, setIsLoadingApplicationState] = useState(true)
 
@@ -48,8 +49,9 @@ export default function AppContextProvider({ children }: { children: React.React
         (async () => {
             const applicationState = await window.electronAPI.getApplicationState()
             if (applicationState) {
-                dispatch({ type: 'LOAD_APPLICATION_STATE', payload: applicationState.subjects })
+                dispatch({ type: 'LOAD_SUBJECTS', payload: applicationState.subjects })
                 setTotalProgress(applicationState.totalProgress)
+                setDeadline(applicationState.deadline)
             }
             setIsLoadingApplicationState(false)
         })()
@@ -64,10 +66,14 @@ export default function AppContextProvider({ children }: { children: React.React
             );
             const overallProgress = Math.round((completedChapters / totalChapters) * 100) || 0;
             setTotalProgress(overallProgress)
-            window.electronAPI.saveApplicationState({ subjects, totalProgress: overallProgress })
+            window.electronAPI.saveApplicationState({ subjects, totalProgress: overallProgress, deadline })
         }
-    }, [subjects])
-    return isLoadingApplicationState ? null : <AppContext.Provider value={{ subjects, dispatch, totalProgress }}>{children}</AppContext.Provider>
+    }, [subjects, deadline])
+
+    return isLoadingApplicationState ? null :
+        <AppContext.Provider value={{ subjects, dispatch, totalProgress, deadline, setDeadline }}>
+            {children}
+        </AppContext.Provider>
 }
 
 export const useAppContext = () => {
@@ -79,7 +85,7 @@ export const useAppContext = () => {
 
 const contextReducer = (subjects: Subject[], action: Action) => {
     switch (action.type) {
-        case 'LOAD_APPLICATION_STATE': {
+        case 'LOAD_SUBJECTS': {
             return action.payload
         }
         case 'ADD_SUBJECT': {

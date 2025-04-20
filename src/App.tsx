@@ -3,10 +3,10 @@ import ProgressCircle from './components/ProgressCircle';
 import SubjectCard from './components/SubjectCard';
 import SubjectModal from './components/SubjectModal';
 import { useAppContext } from './context/AppContext';
+import Timer from './components/Timer';
 
 function App() {
   const { subjects, totalProgress, dispatch } = useAppContext();
-  console.log({ subjects, totalProgress })
   const [openSubjectModal, setOpenSubjectModal] = useState(false)
   const [currentSubjectId, setCurrentSubjectId] = useState<string | null>(null)
   return <div id='root' className='bg-white flex flex-col relative m-auto h-screen overflow-hidden'>
@@ -18,8 +18,12 @@ function App() {
           setCurrentSubjectId(null)
         }} />
     }
-    <div className="size-48 __center mx-auto my-10">
-      <ProgressCircle progress={totalProgress} />
+    <div className='flex flex-col items-center my-10 gap-4'>
+      <div className="size-48 __center mx-auto">
+        <ProgressCircle progress={totalProgress} />
+      </div>
+      <Timer />
+      <span className='text-gray-400'>Total: {subjects.length} {subjects.length === 1 ? "Subject" : "Subjects"}</span>
     </div>
     {subjects.length > 0 ?
       <div className='grid grid-cols-3 gap-4 p-6 pt-0 overflow-auto'>

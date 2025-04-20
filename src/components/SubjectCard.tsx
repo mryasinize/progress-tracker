@@ -16,7 +16,8 @@ export default function SubjectCard({ subjectInfo, onClick, onDelete }: { subjec
       </div>
       <button onClick={(e: React.MouseEvent) => {
         e.stopPropagation();
-        onDelete()
+        window.confirm(`Delete ${name}?`) &&
+          onDelete()
       }}
         className="text-red-500 flex-shrink-0">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">

@@ -5,6 +5,12 @@ import { contextBridge, ipcRenderer } from "electron";
 import { Subject } from "./context/AppContext";
 
 contextBridge.exposeInMainWorld("electronAPI", {
-    saveApplicationState: (state: { subjects: Subject[], totalProgress: number }) => ipcRenderer.send('save-application-state', state),
+    saveApplicationState: (state:
+        {
+            subjects: Subject[],
+            totalProgress: number,
+            deadline: string
+        }
+    ) => ipcRenderer.send('save-application-state', state),
     getApplicationState: () => ipcRenderer.invoke('get-application-state'),
 })

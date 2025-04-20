@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import started from 'electron-squirrel-startup';
 import Store from 'electron-store';
 import path from 'node:path';
+
 const store = new Store();
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -13,7 +14,7 @@ const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1000,
-    height: 700,
+    height: 800,
     transparent: true,
     resizable: false,
     autoHideMenuBar: true,
