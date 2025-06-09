@@ -6,12 +6,12 @@ export default function SubjectCard({ subjectInfo, onClick, onDelete }: { subjec
   const totalProgress = chapters.reduce((total, chapter) => total + (chapter.completed ? 1 : 0), 0) / chapters.length * 100 || 0;
 
   return (
-    <div onClick={onClick} className="cursor-pointer border p-4 rounded-2xl flex items-center justify-between gap-4">
+    <div onClick={onClick} className="dark:bg-white/10 active:scale-[0.98] hover:dark:bg-white/15 select-none cursor-pointer border dark:border-white/10 p-4 rounded-2xl flex items-center justify-between gap-4">
       <div className="flex-shrink-0 size-20">
         <ProgressCircle progress={totalProgress} />
       </div>
       <div className="flex-1 min-w-0">
-        <h1 className="font-bold text-lg text-black truncate">{name}</h1>
+        <h1 className="font-bold text-lg text-black dark:text-white/90 truncate">{name}</h1>
         <p className="text-gray-400 truncate">{chapters.length} {chapters.length === 1 ? "Chapter" : "Chapters"}</p>
       </div>
       <button onClick={(e: React.MouseEvent) => {

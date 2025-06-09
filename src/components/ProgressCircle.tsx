@@ -1,7 +1,9 @@
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import { useAppContext } from '../context/AppContext';
 
 const ProgressCircle = ({ progress }: { progress: number }) => {
+  const { isDarkMode } = useAppContext();
   const getColor = () => {
     if (progress < 50) {
       return {
@@ -30,7 +32,7 @@ const ProgressCircle = ({ progress }: { progress: number }) => {
     styles={buildStyles({
       pathColor: getColor().path,
       textColor: progress === 0 ? '#d6d6d6' : getColor().path,
-      trailColor: progress === 0 ? '#d6d6d6' : getColor().trail,
+      trailColor: progress === 0 ? (isDarkMode ? 'rgb(255 255 255 / 0.17)' : 'rgb(0 0 0 / 0.1)') : getColor().trail,
       backgroundColor: getColor().background
     })}
   />

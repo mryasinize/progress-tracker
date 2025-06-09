@@ -15,6 +15,7 @@ export default function SubjectModal({ subjectId = null, onClose }: { subjectId:
     }
     const [shouldOverflow, setShouldOverflow] = useState(false)
     const containerRef = useRef<HTMLDivElement | null>(null)
+    const overlayRef = useRef<HTMLDivElement | null>(null)
     const [editingChapterId, setEditingChapterId] = useState<string | null>(null);
     const [tempSubjectName, setTempSubjectName] = useState<string>(isNew ? '' : subjectInfo.name)
     const [tempChapterName, setTempChapterName] = useState<string>('');
@@ -92,6 +93,15 @@ export default function SubjectModal({ subjectId = null, onClose }: { subjectId:
         setTempChapterName('');
         setEditingChapterId(null);
     };
+
+    const modalCloseHandler = () => {
+        containerRef.current.classList.replace('animate-modal-open', 'animate-modal-close');
+        overlayRef.current?.classList.replace('animate-overlay-open', 'animate-overlay-close');
+        containerRef.current.onanimationend = () => {
+            onClose()
+        }
+    }
+
     useEffect(() => {
         if (!containerRef.current) return;
 
@@ -107,16 +117,16 @@ export default function SubjectModal({ subjectId = null, onClose }: { subjectId:
             resizeObserver.disconnect();
         };
     }, []);
-    return <div onClick={onClose} className={clsx(
-        "bg-black bg-opacity-[0.3] inset-0 absolute z-10 __center overflow-auto",
+    return <div ref={overlayRef} onClick={modalCloseHandler} className={clsx(
+        "bg-black bg-opacity-[0.3] inset-0 absolute z-10 __center overflow-auto animate-overlay-open",
         shouldOverflow && "sm:items-baseline sm:py-8"
     )}>
-        <div onClick={(e) => e.stopPropagation()} ref={containerRef} className="p-6 sm:h-fit sm:max-w-[600px] sm:rounded-xl shadow-xl sm:mx-6 w-full h-full bg-white overflow-auto">
-            <header className="flex items-center justify-between mb-6">
+        <div onClick={(e) => e.stopPropagation()} ref={containerRef} className="animate-modal-open p-6 sm:h-fit sm:max-w-[600px] sm:rounded-xl shadow-xl sm:mx-6 w-full h-full dark:border dark:border-white/10 bg-white dark:bg-[#242424] dark:bg-blend-darken overflow-auto">
+            <header className="flex items-center justify-between mb-6 dark:text-white/90">
                 <div className="truncate">
                     {showSubjectNameInput ?
                         <div className="flex items-center justify-between">
-                            <input autoFocus value={tempSubjectName} onChange={(e) => setTempSubjectName(e.target.value)} placeholder="Subject Name" className="py-1 px-3 mr-4 border border-gray-300 rounded-md outline-none w-full" />
+                            <input autoFocus value={tempSubjectName} onChange={(e) => setTempSubjectName(e.target.value)} placeholder="Subject Name" className="dark:text-white/90 dark:border-white/10 bg-transparent py-1 px-3 mr-4 border border-gray-300 rounded-md outline-none w-full" />
                             <div className="flex gap-2 items-center">
                                 <button onClick={handleSubjectNameChange}>
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -144,7 +154,7 @@ export default function SubjectModal({ subjectId = null, onClose }: { subjectId:
                         </div>
                     }
                 </div>
-                <button className="ml-4" onClick={onClose}>
+                <button className="ml-4" onClick={modalCloseHandler}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>
@@ -156,14 +166,14 @@ export default function SubjectModal({ subjectId = null, onClose }: { subjectId:
                 </div>
                 <div className="mt-6">
                     <div>
-                        <span className="text-gray-500 text-xl font-semibold">Chapters</span>
+                        <span className="text-gray-500 text-xl font-semibold dark:text-white/90">Chapters</span>
                     </div>
                     <ul className="mt-2">
                         {!isNew && subjectInfo.chapters.length > 0 ? subjectInfo.chapters.map(chapter =>
                             <li key={chapter.id}>
-                                <div className="flex items-center justify-between min-h-11">
+                                <div className="flex items-center justify-between min-h-11 dark:text-white/90">
                                     <input
-                                        className="size-5 cursor-pointer"
+                                        className="size-5 cursor-pointer dark:text-white/90 dark:border-white/10 bg-transparent"
                                         type="checkbox"
                                         checked={chapter.completed}
                                         onChange={() => handleChapterEdit(chapter.id, { completed: !chapter.completed })}
@@ -173,7 +183,7 @@ export default function SubjectModal({ subjectId = null, onClose }: { subjectId:
                                             <input
                                                 autoFocus
                                                 placeholder="Chapter Name"
-                                                className="border border-gray-300 text-gray-900 rounded-md outline-none w-full px-3 py-1"
+                                                className="border border-gray-300 text-gray-900 rounded-md outline-none w-full px-3 py-1 dark:text-white/90 dark:border-white/10 bg-transparent"
                                                 value={tempChapterName}
                                                 onChange={(e) => setTempChapterName(e.target.value)}
                                             />
@@ -209,13 +219,13 @@ export default function SubjectModal({ subjectId = null, onClose }: { subjectId:
                                 </div>
                             </li>
                         ) : !showNewInput &&
-                        <span className="text-gray-500 block my-5">Add some chapters to get started.</span>
+                        <span className="text-gray-500 block my-5 dark:text-white/50">Add some chapters to get started.</span>
                         }
                     </ul>
                     <div className="mt-2">
                         {!isNew && showNewInput ?
-                            <div className="flex items-center justify-between">
-                                <input autoFocus value={newChapterName} onChange={(e) => setNewChapterName(e.target.value)} placeholder="Chapter Name" className="px-3 py-1.5 mr-4 border border-gray-300 text-gray-900 rounded-md outline-none w-full" />
+                            <div className="flex items-center justify-between dark:text-white/90">
+                                <input autoFocus value={newChapterName} onChange={(e) => setNewChapterName(e.target.value)} placeholder="Chapter Name" className="px-3 py-1.5 mr-4 border border-gray-300 text-gray-900 dark:text-white/90 dark:border-white/10 bg-transparent rounded-md outline-none w-full" />
                                 <div className="flex gap-4 items-center">
                                     <button onClick={handleChapterAdd}>
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -232,7 +242,7 @@ export default function SubjectModal({ subjectId = null, onClose }: { subjectId:
                                     </button>
                                 </div>
                             </div>
-                            : <button disabled={isNew} className="disabled:cursor-not-allowed disabled:opacity-50 font-medium flex items-center gap-1 text-blue-500 bg-blue-50 px-3 py-1.5 rounded-md" onClick={() => setShowNewInput(true)}>
+                            : <button disabled={isNew} className="disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98] font-medium flex items-center gap-1 text-blue-500 bg-blue-50 dark:bg-blue-50/5 px-3 py-1.5 rounded-md" onClick={() => setShowNewInput(true)}>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                                 </svg>

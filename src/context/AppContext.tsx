@@ -37,21 +37,33 @@ type Action =
         payload: { subjectId: string, chapterId: string }
     }
 
-const AppContext = createContext<{ subjects: Subject[], totalProgress: number, dispatch: React.Dispatch<Action>, deadline: string | null, setDeadline: React.Dispatch<React.SetStateAction<string | null>> }>({ subjects: [], totalProgress: 0, dispatch: () => { } })
+const AppContext = createContext<{
+    subjects: Subject[],
+    totalProgress: number,
+    dispatch: React.Dispatch<Action>,
+    deadline: string | null,
+    setDeadline: React.Dispatch<React.SetStateAction<string | null>>
+    isDarkMode: boolean,
+    setIsDarkMode: React.Dispatch<React.SetStateAction<boolean>>
+}>({ subjects: [], totalProgress: 0, dispatch: () => { }, deadline: null, setDeadline: () => { }, isDarkMode: false, setIsDarkMode: () => { } })
 
 export default function AppContextProvider({ children }: { children: React.ReactNode }) {
     const [subjects, dispatch] = useReducer(contextReducer, [])
     const [deadline, setDeadline] = useState<string | null>(null)
+    const [isDarkMode, setIsDarkMode] = useState(false)
     const [totalProgress, setTotalProgress] = useState(0)
     const [isLoadingApplicationState, setIsLoadingApplicationState] = useState(true)
 
     useEffect(() => {
+        // Loading application state
         (async () => {
             const applicationState = await window.electronAPI.getApplicationState()
             if (applicationState) {
                 dispatch({ type: 'LOAD_SUBJECTS', payload: applicationState.subjects })
                 setTotalProgress(applicationState.totalProgress)
                 setDeadline(applicationState.deadline)
+                setIsDarkMode(applicationState.isDarkMode)
+                document.querySelector('html').classList.toggle('dark', applicationState.isDarkMode)
             }
             setIsLoadingApplicationState(false)
         })()
@@ -66,12 +78,13 @@ export default function AppContextProvider({ children }: { children: React.React
             );
             const overallProgress = Math.round((completedChapters / totalChapters) * 100) || 0;
             setTotalProgress(overallProgress)
-            window.electronAPI.saveApplicationState({ subjects, totalProgress: overallProgress, deadline })
+            console.log({ subjects, totalProgress: overallProgress, deadline, isDarkMode })
+            window.electronAPI.saveApplicationState({ subjects, totalProgress: overallProgress, deadline, isDarkMode })
         }
-    }, [subjects, deadline])
+    }, [subjects, deadline, isDarkMode])
 
     return isLoadingApplicationState ? null :
-        <AppContext.Provider value={{ subjects, dispatch, totalProgress, deadline, setDeadline }}>
+        <AppContext.Provider value={{ subjects, dispatch, totalProgress, deadline, setDeadline, isDarkMode, setIsDarkMode }}>
             {children}
         </AppContext.Provider>
 }

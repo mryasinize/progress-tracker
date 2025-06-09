@@ -9,7 +9,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
         {
             subjects: Subject[],
             totalProgress: number,
-            deadline: string
+            deadline: string,
+            isDarkMode: boolean
         }
     ) => ipcRenderer.send('save-application-state', state),
     getApplicationState: () => ipcRenderer.invoke('get-application-state'),
